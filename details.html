@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="Style.css" />
+  <script src="myFun.js"></script>   
+<body onload="Captcha()">
+  <nav class="navbar">
+    <ul>
+      <li><a href="home.html">الصفحة الرئيسية</a></li>
+      <li><a href="cars.html" class="active">السيارات</a></li>
+      <li><a href="aboutus.html">من نحن</a></li>
+    </ul>
+  </nav>
+  <header></header>
+  <main>
+    <div id="detail"></div>
+    <div class="table">
+      <table style="min-width: 500px;">
+        <thead>
+          <th>قيمة الإيجار النهائي: <span id="final_rent"></span></th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>قيمة الإيجار: <span id="rent_value"></span></td>
+          </tr>
+          <tr>
+            <td>ضريبة: <span id="tax"></span></td>
+          </tr>
+          <tr>
+            <td>رسم اعادة اعمار: <span id="fee"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <button class="cancel" onclick="window.location.href = '/cars.html'">الغاء</button><br>
+      <label for="continue">متابعة</label>
+      <input id="continue" type="checkbox" />
+    </div>
+    <div id="form" style="display: none;">
+      <form>
+        <div style="width: 96%">
+          <h1>تقديم طلب إيجار</h1>
+          <p>يرجى ملئ الخانات التالية</p><br>
+          <hr />
+
+          <label for="الاسم الكامل"><b>الاسم الكامل</b></label><br>
+          <input type="text" placeholder="name" id="eee" required/><br>
+
+          <label for="الرقم الوطني"><b>الرقم الوطني</b></label><br>
+          <input type="text" placeholder="dddd-dddd-ddd" name="NumID" id="NumID" min="11" maxlength="13" required /><br>
+
+          <label for="تاريخ الولادة"><b>تاريخ الولادة</b></label><br>
+          <input type="text" placeholder="DD-MM-YYYY" name="birthday" id="birthday" maxlength="10" required /><br>
+
+          <label for="رقم الموبايل"><b>رقم الموبايل</b></label><br>
+          <input type="text" placeholder="09XXXXXXXX" id="num" required maxlength="10"  /><br>
+
+          <label for="الايميل"><b>الايميل</b></label><br>
+          <input type="text" placeholder="examples@gmail.com" name="Email" id="Email" required /><br>
+
+          <label for="مدة الايجار"><br>
+            <b>(حسب نوع الايجار) مدة الايجار</b><br>
+          </label>
+
+          <input type="number" name="period" id="period" required maxlength="10" min="1" /><br>
+
+          <div>
+            <label>Check you're not a robot.</label><br>
+            <div id="mainCaptcha"></div><br>
+
+            <input class="clilk" type="button" id="refresh" value="reCaptcha" onclick="Captcha();" /><br>
+
+            <input type="text" id="txtInput" placeholder="يرجى ادخال النص" required /><br>
+            <div><small id="errCaptcha"></small></div>
+          </div>
+          <div class="clearfix">
+            <button class="Add" value="تقديم الطلب">
+              تقديم الطلب
+              </input>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+<script>
+  const id = new URLSearchParams(window.location.search).get("id");
+  const carDetails = cars.filter((car) => car.id == id)[0];
+  document.getElementById("detail").innerHTML = `
+    <div class="car-listing">
+      <div>
+        <h2>${carDetails.make} ${carDetails.year}</h2>
+        <ul>
+          <li><strong>صنع:</strong> ${carDetails.make}</li>
+          <li><strong>سنة الصنع:</strong> ${carDetails.year}</li>
+          <li><strong>نوع الإيجار:</strong> ${carDetails.rental_type}</li>
+          <li><strong>قيمة الإيجار:</strong> ${carDetails.rent_value} ل.س</li>
+          </ul>
+          </div>
+          <img src="${carDetails.image}" alt="${carDetails.year}">
+</div>
+    `;
+  document.getElementById("final_rent").innerHTML =
+    calcFinalRent(carDetails.rent_value) + " ل.س";
+  document.getElementById("rent_value").innerHTML =
+    carDetails.rent_value + " ل.س";
+  document.getElementById("tax").innerHTML =
+    (carDetails.rent_value * 5) / 100 + " ل.س";
+  document.getElementById("fee").innerHTML =
+    (carDetails.rent_value * 1) / 100 + " ل.س";
+
+  const proceed = document.getElementById("continue");
+  proceed.addEventListener("click", (e) => {
+    if (e.target.checked) {
+      document.getElementById('form').style.display = 'block'
+    }
+  });
+
+  const form = document.querySelector('#form form');
+
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (validateName() &&
+      validateNumID() &&
+      validateNumber() &&
+      validateDate() &&
+      validateEmail() &&
+      validatePeriod() &&
+      ValidCaptcha()) {
+      const period = document.getElementById('period').value
+      alert(`قيمة الايجار النهائية: ${calcFinalRent(carDetails.rent_value * period)} ل.س`)
+    }else{
+      alert('يرجى التحقق من البيانات المدخلة!')
+    }
+  }
+  )
+
+  function validateName() {
+    const nameInput = document.getElementById('eee');
+    const nameValue = nameInput.value;
+
+    if (nameValue.match(/^[\u0621-\u064A\u0660-\u0669\s]+$/)) {
+      return true
+    } else {
+      return false
+    }
+  }
+  function validatePeriod() {
+    const nameInput = document.getElementById('period');
+    const nameValue = nameInput.value;
+
+    if (nameValue) {
+      return true
+    } else {
+      return false
+    }
+  }
+  function validateNumID() {
+    const nameInput = document.getElementById('NumID');
+    const nameValue = nameInput.value;
+
+    if (nameValue.match(/^01|02|03|04|05|06|07|08|14|13|12|11|10|09[0-9]{9}$/) || nameValue.length !== 11) {
+      return true
+    } else {
+      return false
+    }
+  }
+  function validateNumber() {
+    const nameInput = document.getElementById('num');
+    const nameValue = nameInput.value;
+
+    if (nameValue.match(/^[0][9][^0127]\d{7}$/)) {
+      return true
+    } else {
+      return false
+    }
+  }
+  function validateDate() {
+    const nameInput = document.getElementById('birthday');
+    const nameValue = nameInput.value;
+
+    if (nameValue.match(/^(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-\d{4}$/)) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  function validateEmail() {
+    const emailInput = document.getElementById('Email');
+    const emailValue = emailInput.value;
+
+    if (emailValue.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+</script>
+</head>
+</html>
